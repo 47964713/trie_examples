@@ -1,26 +1,30 @@
-// C++ implementation of search and insert
-// operations on Trie
-#include <bits/stdc++.h>
+// C++ program to demonstrate auto-complete feature
+// using Trie data structure.
+#include<bits/stdc++.h>
 using namespace std;
 
-const int ALPHABET_SIZE = 26;
+// Alphabet size (# of symbols)
+#define ALPHABET_SIZE (26)
+
+// Converts key current character into index
+// use only 'a' through 'z' and lower case
+#define CHAR_TO_INDEX(c) ((int)c - (int)'a')
 
 // trie node
 struct TrieNode
 {
     struct TrieNode *children[ALPHABET_SIZE];
 
-    // isEndOfWord is true if the node represents
+    // isWordEnd is true if the node represents
     // end of a word
-    bool isEndOfWord;
+    bool isWordEnd;
 };
 
 // Returns new trie node (initialized to NULLs)
 struct TrieNode *getNode(void)
 {
     struct TrieNode *pNode = new TrieNode;
-
-    pNode->isEndOfWord = false;
+    pNode->isWordEnd = false;
 
     for (int i = 0; i < ALPHABET_SIZE; i++)
         pNode->children[i] = NULL;
@@ -28,20 +32,19 @@ struct TrieNode *getNode(void)
     return pNode;
 }
 
-
 class Trie {
 
 public:
-    Trie()= default;
 
-    // If not present, inserts key into trie
-    // If the key is prefix of trie node, just
-    // marks leaf node
-    void insert(struct TrieNode *root, string key) {
+    Trie() = default;
+
+// If not present, inserts key into trie. If the
+// key is prefix of trie node, just marks leaf node
+    void insert(struct TrieNode *root, const string key) {
         struct TrieNode *trav = root;
 
-        for (int i = 0; i < key.length(); i++) {
-            int index = key[i] - 'a';
+        for (int level = 0; level < key.length(); level++) {
+            int index = CHAR_TO_INDEX(key[level]);
             if (!trav->children[index])
                 trav->children[index] = getNode();
 
@@ -49,22 +52,96 @@ public:
         }
 
         // mark last node as leaf
-        trav->isEndOfWord = true;
+        trav->isWordEnd = true;
     }
 
-// Returns true if key presents in trie, else
-// false
-    bool search(struct TrieNode *root, string key) {
+// Returns true if key presents in trie, else false
+    bool search(struct TrieNode *root, const string key) {
+        int length = key.length();
         struct TrieNode *trav = root;
+        for (int level = 0; level < length; level++) {
+            int index = CHAR_TO_INDEX(key[level]);
 
-        for (int i = 0; i < key.length(); i++) {
-            int index = key[i] - 'a';
             if (!trav->children[index])
                 return false;
 
             trav = trav->children[index];
         }
 
-        return (trav != NULL && trav->isEndOfWord);
+        return (trav != NULL && trav->isWordEnd);
     }
+
+// Returns 0 if current node has a child
+// If all children are NULL, return 1.
+    bool isLastNode(struct TrieNode *root) {
+        for (int i = 0; i < ALPHABET_SIZE; i++)
+            if (root->children[i])
+                return 0;
+        return 1;
+    }
+
+// Recursive function to print auto-suggestions for given
+// node.
+    void suggestionsRec(struct TrieNode *root, string currPrefix) {
+        // found a string in Trie with the given prefix
+        if (root->isWordEnd) {
+            cout << currPrefix;
+            cout << endl;
+        }
+
+        // All children struct node pointers are NULL
+        if (isLastNode(root))
+            return;
+
+        for (int i = 0; i < ALPHABET_SIZE; i++) {
+            if (root->children[i]) {
+                // append current character to currPrefix string
+                currPrefix.push_back(97 + i);
+
+                // recur over the rest
+                suggestionsRec(root->children[i], currPrefix);
+                // remove last character
+                currPrefix.pop_back();
+            }
+        }
+    }
+
+// print suggestions for given query prefix.
+    int printAutoSuggestions(TrieNode *root, const string query) {
+        struct TrieNode *trav = root;
+
+        // Check if prefix is present and find the node (of last level) with last character of given string.
+        int level;
+        int n = query.length();
+        for (level = 0; level < n; level++) {
+            int index = CHAR_TO_INDEX(query[level]);
+
+            // no string in the Trie has this prefix
+            if (!trav->children[index])
+                return 0;
+
+            trav = trav->children[index];
+        }
+
+        // If prefix is present as a word.
+        bool isWord = (trav->isWordEnd == true);
+
+        // If prefix is last node of tree (has no children)
+        bool isLast = isLastNode(trav);
+
+        // If prefix is present as a word, but there is no subtree below the last matching node.
+        if (isWord && isLast) {
+            cout << query << endl;
+            return -1;
+        }
+
+        //Looking for words past the last node
+        if (!isLast) {
+            string prefix = query;
+            suggestionsRec(trav, prefix);
+            return 1;
+        }
+    }
+
+
 };
