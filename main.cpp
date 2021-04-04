@@ -1,6 +1,11 @@
 #include <iostream>
+#include <iostream>
+#include <string>
+#include "Trie.h"
+using namespace std;
+int main()
+{
+    Trie t;
 
-int main() {
-    std::cout << "Hello, World!" << std::endl;
     return 0;
 }

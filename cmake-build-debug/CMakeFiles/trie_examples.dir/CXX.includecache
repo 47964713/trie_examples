@@ -6,7 +6,17 @@
 
 #IncludeRegexTransform: 
 
+/mnt/c/Users/tmols/Desktop/Algo/Scratch/trie_examples/Trie.h
+bits/stdc++.h
+-
+
 /mnt/c/Users/tmols/Desktop/Algo/Scratch/trie_examples/main.cpp
 iostream
 -
+iostream
+-
+string
+-
+Trie.h
+/mnt/c/Users/tmols/Desktop/Algo/Scratch/trie_examples/Trie.h
 
